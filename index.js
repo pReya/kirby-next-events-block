@@ -1,10 +1,14 @@
-panel.plugin("welcome-werkstatt/next-events-block", {
+panel.plugin("preya/kirby-next-events-block", {
   blocks: {
     "next-events": {
       template: `
-        <div v-bind:class="content.color" class="box-container" @click="open">
-          <h3 v-if="content.title" class="box-title" v-html="content.title"></h3>
-          <div class="box-content" v-html="content.body"></div>
+        <div @click="open">
+          <h3>Next Events</h3>
+          <ul>
+            <li>Placeholder event 1</li>
+            <li>Placeholder event 2</li>
+            <li>Placeholder event 3</li>
+          </ul>
         </div>
       `,
     },
