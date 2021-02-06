@@ -9,14 +9,14 @@ use Sabre\VObject;
  * a Kirby template.
  */
 
-setlocale(LC_ALL, 'de_DE');
 $eventArray = array();
 
 // UI parameters
 $cacheActive = $block->cache()->toBool();
-$eventsToDisplay = $block->eventNumber()->toInt();
+$cacheDuration = $block->cacheduration()->toInt();
+$eventAmount = $block->eventamount()->toInt();
 $sourceUrl = $block->source();
-$withinDays = $block->within()->toInt();
+$withinDays = $block->withindays()->toInt();
 $sortAscending = ($block->order() == 'ascending');
 $blockId = $block->id();
 $cachedContent = null;
@@ -24,7 +24,7 @@ $cachedContent = null;
 
 if ($cacheActive) {
   // Hash all settings to use as cache key
-  $hash = hash('md5', $blockId . $sourceUrl . $eventsToDisplay . $withinDays . $sortAscending);
+  $hash = hash('md5', $blockId . $sourceUrl . $eventAmount . $withinDays . $sortAscending . $cacheDuration);
   $cache = $kirby->cache('preya.kirby-next-events-block');
   $cachedContent = $cache->get($hash);
 }
@@ -36,15 +36,17 @@ if (!$cachedContent) {
   $curlHandler = curl_init($sourceUrl);
   curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
   $calendar = curl_exec($curlHandler);
+  $timezone = new DateTimeZone('Europe/Berlin');
 
   if ($calendar) {
     try {
       // Parse Calendar
       $vcalendar = VObject\Reader::read($calendar);
       $now = new DateTime();
-      $endDateWithin = (new DateTime())->add(new DateInterval('P' . $withinDays . 'D'));
+      $interval = 'P' . $withinDays . 'D';
+      $endDateWithin = (new DateTime())->add(new DateInterval($interval));
       // Expand recurring events to be looped over
-      $expandedVCalendar = $vcalendar->expand($now, $endDateWithin);
+      $expandedVCalendar = $vcalendar->expand($now, $endDateWithin, $timezone);
     } catch (Exception $e) {
       $expandedVCalendar = array();
     }
@@ -52,8 +54,8 @@ if (!$cachedContent) {
 
   if ($expandedVCalendar) {
     foreach ($expandedVCalendar->VEVENT as $event) {
-      $localStartTime = $event->DTSTART->getDateTime()->setTimezone(new DateTimeZone('Europe/Berlin'));
-      $localEndTime = $event->DTEND->getDateTime()->setTimezone(new DateTimeZone('Europe/Berlin'));
+      $localStartTime = $event->DTSTART->getDateTime()->setTimezone($timezone);
+      $localEndTime = $event->DTEND->getDateTime()->setTimezone($timezone);
 
       array_push($eventArray, array(
         'summary' => (string) $event->SUMMARY,
@@ -70,14 +72,14 @@ if (!$cachedContent) {
     uasort($eventArray, fn ($a, $b) => $a['startTs'] <=> $b['startTs']);
 
     // Only save relevant entries
-    $eventArray = array_slice($eventArray, 0, $eventsToDisplay);
+    $eventArray = array_slice($eventArray, 0, $eventAmount);
 
     if (!$sortAscending) {
       $eventArray = array_reverse($eventArray);
     }
   }
   if ($cacheActive) {
-    $cache->set($hash, $eventArray, 10);
+    $cache->set($hash, $eventArray, $cacheDuration);
   }
 } else {
   // Cache hit
@@ -85,24 +87,24 @@ if (!$cachedContent) {
 }
 ?>
 
-<ul class="calendar">
+<ul class="k-block-type-next-events next-events-container">
   <?php foreach ($eventArray as $event) : ?>
-    <li>
+    <li class="next-events-item">
       <div><?= $event['startDateString'] ?></div>
-      <div style="text-align: right">
+      <div class="text-right">
         <?php if ($event['url']) : ?>
           <a href="<?= $event['url'] ?>" class="undecorated-link">
           <?php endif ?>
-          <span style="font-weight: bold">
+          <strong>
             <?= $event['summary'] ?>
-          </span>
+          </strong>
           <?php if ($event['url']) : ?>
             <div class="icon baseline">
               <?php include("assets/img/open-in-new-24px.svg"); ?>
             </div>
           </a>
         <?php endif ?><br />
-        <span style="font-size: 0.9em">
+        <span class="small">
           <?= $event['startTimeString'] ?> - <?= $event['endTimeString'] ?> Uhr
         </span>
       </div>

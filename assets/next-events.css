@@ -1,0 +1,44 @@
+.k-block-type-next-events, .next-events-container {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.k-block-type-next-events .next-events-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.k-block-type-next-events .text-right {
+  text-align: right;
+}
+
+.k-block-type-next-events .undecorated-link {
+  color: var(--primary-blue);
+  text-decoration: none;
+}
+
+.k-block-type-next-events .undecorated-link:hover {
+  text-decoration: underline;
+}
+
+.k-block-type-next-events .icon {
+  display: inline-flex;
+  align-self: center;
+}
+
+.k-block-type-next-events .icon svg {
+  height: 1em;
+  width: 1em;
+  fill: var(--primary-blue);
+}
+
+.k-block-type-next-events .icon.baseline svg {
+  top: 0.15em;
+  position: relative;
+}
+
+.k-block-type-next-events .small {
+  font-size: 0.9em;
+}

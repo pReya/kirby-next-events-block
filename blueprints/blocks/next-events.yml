@@ -1,14 +1,17 @@
 name: Next Events
 icon: calendar
+
 fields:
-  eventNumber:
+  eventAmount:
     label: Number of Events
     type: range
     step: 1
     min: 1
     max: 20
     default: 3
-  within:
+    required: true
+    width: 1/2
+  withinDays:
     label: Within
     type: range
     step: 1
@@ -16,6 +19,8 @@ fields:
     max: 365
     default: 90
     after: days
+    required: true
+    width: 1/2
   source:
     label: Calendar URL
     type: url
@@ -29,9 +34,21 @@ fields:
     default: ascending
     required: true
   cache:
-    label: Cache result?
+    label: Enable caching?
     type: toggle
     values:
       - "yes"
       - "no"
     default: "yes"
+    required: true
+    width: 1/2
+  cacheDuration:
+    label: Cache duration
+    type: range
+    step: 1
+    min: 1
+    max: 365
+    default: 10
+    after: days
+    required: true
+    width: 1/2
