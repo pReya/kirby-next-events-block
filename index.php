@@ -1,5 +1,7 @@
 <?php
 
+@include_once __DIR__ . '/vendor/autoload.php';
+
 Kirby::plugin('preya/kirby-next-events-block', [
   'blueprints' => [
     'blocks/next-events' => __DIR__ . '/blueprints/blocks/next-events.yml'
