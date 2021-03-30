@@ -9,6 +9,8 @@ use Sabre\VObject;
  * a Kirby template.
  */
 
+// This is needed so the strftime() call will return German day names
+setlocale(LC_ALL, 'de_DE');
 $eventArray = array();
 
 // UI parameters
