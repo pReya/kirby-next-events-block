@@ -35,9 +35,8 @@ if (!$cachedContent) {
   // Cache miss or no cache active
 
   // Curl Request
-  $curlHandler = curl_init($sourceUrl);
-  curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
-  $calendar = curl_exec($curlHandler);
+  $calendar = Remote::get($sourceUrl)->content;
+
   $timezone = new DateTimeZone('Europe/Berlin');
 
   if ($calendar) {
@@ -59,13 +58,20 @@ if (!$cachedContent) {
       $localStartTime = $event->DTSTART->getDateTime()->setTimezone($timezone);
       $localEndTime = $event->DTEND->getDateTime()->setTimezone($timezone);
 
+      // Check whether the "Location" property is a valid URL
+      if (filter_var($event->LOCATION, FILTER_VALIDATE_URL)) {
+        $url = $event->LOCATION;
+      } else {
+        $url = $event->URL;
+      }
+
       array_push($eventArray, array(
         'summary' => (string) $event->SUMMARY,
         'startTs' => $localStartTime->getTimestamp(),
         'startDateString' => (string) strftime("%a, %e.%m.", $localStartTime->getTimestamp()),
         'startTimeString' => (string) $localStartTime->format('G:i'),
         'endTimeString' => (string) $localEndTime->format('G:i'),
-        'url' => (string) $event->URL
+        'url' => (string) $url,
       ));
     }
 
