@@ -65,10 +65,19 @@ if (!$cachedContent) {
         $url = $event->URL;
       }
 
+      $formatter = new IntlDateFormatter(
+        'de_DE',
+        IntlDateFormatter::MEDIUM,
+        IntlDateFormatter::MEDIUM,
+        'Europe/Berlin',
+        null,
+        'E, d.M.'
+      );
+
       array_push($eventArray, array(
         'summary' => (string) $event->SUMMARY,
         'startTs' => $localStartTime->getTimestamp(),
-        'startDateString' => (string) strftime("%a, %e.%m.", $localStartTime->getTimestamp()),
+        'startDateString' => (string) $formatter->format($localStartTime),
         'startTimeString' => (string) $localStartTime->format('G:i'),
         'endTimeString' => (string) $localEndTime->format('G:i'),
         'url' => (string) $url,

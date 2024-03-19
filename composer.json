@@ -11,6 +11,11 @@
   ],
   "require": {
     "getkirby/composer-installer": "^1.2.1",
-    "sabre/vobject": "^4.3"
+    "sabre/vobject": "^4.5"
+  },
+  "config": {
+    "allow-plugins": {
+      "getkirby/composer-installer": true
+    }
   }
 }
