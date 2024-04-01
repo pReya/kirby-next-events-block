@@ -23,7 +23,6 @@ $sortAscending = ($block->order() == 'ascending');
 $blockId = $block->id();
 $cachedContent = null;
 
-
 if ($cacheActive) {
   // Hash all settings to use as cache key
   $hash = hash('md5', $blockId . $sourceUrl . $eventAmount . $withinDays . $sortAscending . $cacheDuration);
@@ -54,6 +53,16 @@ if (!$cachedContent) {
   }
 
   if ($expandedVCalendar) {
+
+    $formatter = new IntlDateFormatter(
+      'de_DE',
+      IntlDateFormatter::MEDIUM,
+      IntlDateFormatter::MEDIUM,
+      'Europe/Berlin',
+      null,
+      'E, d.M.'
+    );
+
     foreach ($expandedVCalendar->VEVENT as $event) {
       $localStartTime = $event->DTSTART->getDateTime()->setTimezone($timezone);
       $localEndTime = $event->DTEND->getDateTime()->setTimezone($timezone);
@@ -65,25 +74,17 @@ if (!$cachedContent) {
         $url = $event->URL;
       }
 
-      $formatter = new IntlDateFormatter(
-        'de_DE',
-        IntlDateFormatter::MEDIUM,
-        IntlDateFormatter::MEDIUM,
-        'Europe/Berlin',
-        null,
-        'E, d.M.'
-      );
-
-      array_push($eventArray, array(
+      $currentEvent = [
         'summary' => (string) $event->SUMMARY,
         'startTs' => $localStartTime->getTimestamp(),
         'startDateString' => (string) $formatter->format($localStartTime),
         'startTimeString' => (string) $localStartTime->format('G:i'),
         'endTimeString' => (string) $localEndTime->format('G:i'),
         'url' => (string) $url,
-      ));
-    }
+      ];
 
+      array_push($eventArray, $currentEvent);
+    }
 
     // Sort by time
     uasort($eventArray, fn ($a, $b) => $a['startTs'] <=> $b['startTs']);
@@ -102,6 +103,7 @@ if (!$cachedContent) {
   // Cache hit
   $eventArray = $cachedContent;
 }
+
 ?>
 
 <ul class="k-block-type-next-events next-events-container">
@@ -128,3 +130,4 @@ if (!$cachedContent) {
     </li>
   <?php endforeach ?>
 </ul>
+
