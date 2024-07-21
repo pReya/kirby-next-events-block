@@ -8,6 +8,11 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+  gap: 20px;
+}
+
+.k-block-type-next-events .next-events-item .date {
+  flex-shrink: 0;
 }
 
 .k-block-type-next-events .text-right {

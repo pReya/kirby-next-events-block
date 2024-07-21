@@ -9,6 +9,7 @@ use Sabre\VObject;
  * a Kirby template.
  */
 
+
 // This is needed so the strftime() call will return German day names
 setlocale(LC_ALL, 'de_DE');
 $eventArray = array();
@@ -29,14 +30,20 @@ if ($cacheActive) {
   $cache = $kirby->cache('preya.kirby-next-events-block');
   $cachedContent = $cache->get($hash);
 }
-
 if (!$cachedContent) {
   // Cache miss or no cache active
-
-  // Curl Request
-  $calendar = Remote::get($sourceUrl)->content;
+  
+  try {
+    // Curl Request
+    $request = Remote::get($sourceUrl);
+  } catch (Exception $e) {
+    file_put_contents("debug.txt", print_r($e, true), FILE_APPEND | LOCK_EX);
+  }
 
   $timezone = new DateTimeZone('Europe/Berlin');
+
+  $calendar = $request->content;
+
 
   if ($calendar) {
     try {
@@ -52,7 +59,10 @@ if (!$cachedContent) {
     }
   }
 
+
   if ($expandedVCalendar) {
+    // file_put_contents("debug.txt", print_r($expandedVCalendar, true), FILE_APPEND | LOCK_EX);
+
 
     $formatter = new IntlDateFormatter(
       'de_DE',
@@ -109,7 +119,7 @@ if (!$cachedContent) {
 <ul class="k-block-type-next-events next-events-container">
   <?php foreach ($eventArray as $event) : ?>
     <li class="next-events-item">
-      <div><?= $event['startDateString'] ?></div>
+      <div class="date"><?= $event['startDateString'] ?></div>
       <div class="text-right">
         <?php if ($event['url']) : ?>
           <a href="<?= $event['url'] ?>" class="undecorated-link">
